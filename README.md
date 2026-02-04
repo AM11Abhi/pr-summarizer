@@ -69,7 +69,3 @@ To build a **reliable, reusable GitHub Actions workflow** that automates pull re
 
 ---
 
-## 👤 Author
-
-**Abhinav Mish**  
-(DevOps & Version Control Automation)
