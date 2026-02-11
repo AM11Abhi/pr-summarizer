@@ -1,0 +1,17 @@
+name: PR Trigger Test
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Print PR context
+        run: |
+          echo "Workflow triggered successfully!"
+          echo "PR Number: ${{ github.event.pull_request.number }}"
+          echo "Base Branch: ${{ github.base_ref }}"
+          echo "Head Branch: ${{ github.head_ref }}"
