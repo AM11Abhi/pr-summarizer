@@ -1,4 +1,4 @@
-name: PR Diff Test
+name: PR Python Test
 
 on:
   pull_request:
@@ -18,14 +18,31 @@ jobs:
       # 2️⃣ Extract PR diff
       - name: Extract PR diff
         run: |
-          echo "Fetching base branch..."
           git fetch origin ${{ github.base_ref }}
-
-          echo "Generating diff..."
           git diff origin/${{ github.base_ref }}...HEAD > diff.txt
-
           echo "Diff line count:"
           wc -l diff.txt
 
-          echo "First 20 lines of diff:"
-          head -20 diff.txt
+      # 3️⃣ Setup Python
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      # 4️⃣ Install dependencies (if any)
+      - name: Install dependencies
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+      # 5️⃣ Run LLM module
+      - name: Run LLM module
+        run: |
+          python llm-module/main.py diff.txt > summary.txt
+
+      # 6️⃣ Show summary output
+      - name: Show summary
+        run: |
+          echo "Generated summary:"
+          cat summary.txt
