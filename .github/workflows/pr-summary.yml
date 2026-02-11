@@ -1,4 +1,4 @@
-name: PR Trigger Test
+name: PR Diff Test
 
 on:
   pull_request:
@@ -9,9 +9,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Print PR context
+      # 1️⃣ Checkout full repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      # 2️⃣ Extract PR diff
+      - name: Extract PR diff
         run: |
-          echo "Workflow triggered successfully!"
-          echo "PR Number: ${{ github.event.pull_request.number }}"
-          echo "Base Branch: ${{ github.base_ref }}"
-          echo "Head Branch: ${{ github.head_ref }}"
+          echo "Fetching base branch..."
+          git fetch origin ${{ github.base_ref }}
+
+          echo "Generating diff..."
+          git diff origin/${{ github.base_ref }}...HEAD > diff.txt
+
+          echo "Diff line count:"
+          wc -l diff.txt
+
+          echo "First 20 lines of diff:"
+          head -20 diff.txt
