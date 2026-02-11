@@ -1,0 +1,5 @@
++ Added JWT authentication middleware
+- Removed session-based login
++ Refactored user controller logic
++ Added input validation for email field
+- Fixed bug in password reset
