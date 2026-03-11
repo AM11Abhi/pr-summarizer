@@ -1,15 +1,16 @@
-from google import genai
+import requests
 
-client = genai.Client(api_key="AIzaSyDvPPIcuEW3pvt7MHgLThBT8pYGEo5NZOg")
+def generate_summary(prompt):
 
-def generate_summary(prompt: str):
-
-    response = client.models.generate_content(
-        model="gemini-2.0-flash",
-        contents=prompt
+    response = requests.post(
+        "http://localhost:11434/api/generate",
+        json={
+            "model": "phi3",
+            "prompt": prompt,
+            "stream": False
+        }
     )
 
-    return response.text
+    data = response.json()
 
-
-
+    return data.get("response", "No response from model")
