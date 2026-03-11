@@ -43,6 +43,8 @@ jobs:
 
       # 5️⃣ Run LLM module
       - name: Run LLM module
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
         run: |
           python llm-module/main.py diff.txt > summary.txt
 
