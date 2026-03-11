@@ -1,6 +1,7 @@
 import sys
+import os
+import google.generativeai as genai
 from diff_parser import clean_diff
-
 
 def main():
     if len(sys.argv) < 2:
@@ -13,19 +14,41 @@ def main():
         with open(diff_file, "r", encoding="utf-8") as f:
             diff_text = f.read()
 
-        cleaned = clean_diff(diff_text)
+        cleaned_diff = clean_diff(diff_text)
 
-        added = sum(1 for line in cleaned.split("\n") if line.startswith("+"))
-        removed = sum(1 for line in cleaned.split("\n") if line.startswith("-"))
+        # Limit size to avoid huge prompts
+        cleaned_diff = cleaned_diff[:6000]
 
-        print("## 🤖 Mock AI Summary")
-        print(f"Total changes: {added + removed}")
-        print(f"Lines added: {added}")
-        print(f"Lines removed: {removed}")
+        api_key = os.getenv("GEMINI_API_KEY")
+        if not api_key:
+            print("GEMINI_API_KEY not set")
+            return
+
+        genai.configure(api_key=api_key)
+
+        model = genai.GenerativeModel("gemini-1.5-flash")
+
+        prompt = f"""
+You are an AI code reviewer.
+
+Summarize the following pull request changes.
+
+Explain:
+- What changed
+- Key improvements
+- Possible purpose of the changes
+
+Code changes:
+{cleaned_diff}
+"""
+
+        response = model.generate_content(prompt)
+
+        print("## 🤖 AI Pull Request Summary\n")
+        print(response.text)
 
     except Exception as e:
-        print(f"Error processing diff: {e}")
-
+        print(f"Error generating summary: {e}")
 
 if __name__ == "__main__":
     main()

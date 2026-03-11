@@ -1,5 +1,17 @@
-+ Added JWT authentication middleware
-- Removed session-based login
-+ Refactored user controller logic
-+ Added input validation for email field
-- Fixed bug in password reset
+diff --git a/app.py b/app.py
+index 83db48f..f735c2d 100644
+--- a/app.py
++++ b/app.py
+@@ -1,5 +1,8 @@
+ import sys
+
+-def greet(name):
+-    return "Hello " + name
++def greet(name: str) -> str:
++    message = "Hello " + name
++    print(message)
++    return message
+
+-print(greet("World"))
++if __name__ == "__main__":
++    print(greet("World"))
