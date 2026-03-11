@@ -1,5 +1,11 @@
-+ Added JWT authentication middleware
-- Removed session-based login
-+ Refactored user controller logic
-+ Added input validation for email field
-- Fixed bug in password reset
+diff --git a/auth.py b/auth.py
+index 2c1a3a..8f1c2d 100644
+--- a/auth.py
++++ b/auth.py
+@@ -10,6 +10,9 @@
+
++def login():
++    authenticate_user()
+
+-def old_login_function():
+-    pass
