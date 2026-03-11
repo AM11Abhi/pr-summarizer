@@ -24,14 +24,19 @@ def main():
         client = genai.Client()
 
         prompt = f"""
-You are an AI code reviewer.
+You are an AI assistant that summarizes GitHub pull requests.
 
-Summarize the following pull request changes.
+Create a short summary using this format:
 
-Explain:
-- What changed
-- Key improvements
-- Purpose of the changes
+🤖 AI Pull Request Summary
+
+Key Changes
+- bullet points of major changes
+
+Impact
+- one or two sentences describing the purpose
+
+Keep the response concise (max 120 words).
 
 Code changes:
 {cleaned_diff}
