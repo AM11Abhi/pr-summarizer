@@ -28,7 +28,6 @@ You are an AI assistant that summarizes GitHub pull requests.
 
 Create a short summary using this format:
 
-🤖 AI Pull Request Summary
 
 Key Changes
 - bullet points of major changes
