@@ -1,71 +1,156 @@
-# AI-Powered Pull Request Summarizer
+# 🤖 AI-Powered Pull Request Summarizer
 
-This project aims to automate the generation of concise, human-readable summaries for GitHub Pull Requests using Large Language Models (LLMs) integrated through a CI/CD pipeline.
-
-The system automatically analyzes code changes in a pull request and posts an AI-generated summary directly as a comment on the PR.
+An automated GitHub Actions-based tool that generates **AI-powered summaries for Pull Requests** using Google Gemini.
 
 ---
 
-## 📌 Project Status
+## 🚀 Overview
 
-🚧 **In Progress**
+This project integrates **GitHub Actions + Large Language Models (LLMs)** to automatically summarize pull requests.
 
-- ✅ GitHub repository setup
-- ✅ CI/CD automation using GitHub Actions (in progress)
-- ⏳ LLM-based summarization module (to be integrated later)
+Whenever a PR is created or updated:
 
-> **Note:** The DevOps automation pipeline is being developed first.  
-> The LLM logic will be integrated later without changing the CI/CD structure.
-
----
-
-## ⚙️ How It Works (High-Level)
-
-1. A Pull Request is opened or updated
-2. GitHub Actions workflow is triggered
-3. Repository is checked out with full history
-4. Code changes are extracted using `git diff`
-5. The diff is passed to a summarization module
-6. A summary is posted as a comment on the Pull Request
+* Code changes are extracted using `git diff`
+* Changes are processed and sent to an AI model (Gemini)
+* A concise summary is generated
+* The summary is posted as a comment on the PR
 
 ---
 
-## 🛠️ Technologies Used
+## ⚙️ How It Works
 
-- Git & GitHub
-- GitHub Actions
-- YAML
-- Linux Shell Commands (`git diff`)
-- GitHub REST API
-- GitHub Secrets (for API keys)
-
----
-
-## 🔀 Branching Strategy
-
-- `main` – stable, reviewed code
-- `feature/*` – development branches
-
-All changes are merged into `main` via Pull Requests.
-
----
-
-## 🎯 Objective
-
-To build a **reliable, reusable GitHub Actions workflow** that automates pull request summarization and follows DevOps best practices such as:
-
-- Event-based triggers
-- Secure secret management
-- Logging and observability
-- Modular design
+```text
+Pull Request Event
+        ↓
+GitHub Actions Workflow
+        ↓
+Extract Code Diff (git diff)
+        ↓
+Process Diff (cleaning)
+        ↓
+Send to Gemini AI
+        ↓
+Generate Summary
+        ↓
+Post Comment on PR
+```
 
 ---
 
-## 📈 Future Enhancements
+## 📁 Project Structure
 
-- Integration with an LLM for real summaries
-- Updating an existing PR comment instead of posting multiple comments
-- Rate-limit handling and workflow optimization
+```
+pr-summarizer/
+│
+├── .github/
+│   └── workflows/
+│       └── pr-summary.yml      # GitHub Actions workflow
+│
+├── llm-module/
+│   ├── main.py                # Main AI logic
+│   └── diff_parser.py         # Diff cleaning utility
+│
+├── requirements.txt           # Dependencies
+└── README.md
+```
+
+---
+
+## 🔧 Setup & Usage
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/AM11Abhi/pr-summarizer.git
+cd pr-summarizer
+```
+
+---
+
+### 2️⃣ Add API Key (Important)
+
+Go to:
+
+```
+Repo → Settings → Secrets → Actions
+```
+
+Add:
+
+```
+GEMINI_API_KEY = your_api_key
+```
+
+---
+
+### 3️⃣ Create a Pull Request
+
+* Create a new branch
+* Make code changes
+* Open a PR to `main`
+
+👉 The workflow will automatically run and post a summary.
+
+---
+
+## 🧪 Example Output
+
+```
+🤖 AI Pull Request Summary
+
+Key Changes
+• Added invoice calculation functions
+• Implemented discount logic with validation
+• Improved code structure
+
+Impact
+Enhances functionality by introducing structured business logic and improving maintainability.
+```
+
+---
+
+## 🔑 Key Features
+
+* ✅ Automatic PR summarization
+* ✅ GitHub Actions integration
+* ✅ Uses Google Gemini (LLM)
+* ✅ Clean diff processing
+* ✅ Fully automated commenting
+* ✅ Works on every PR update
+
+---
+
+## ⚠️ Limitations
+
+* 🔒 External contributors (fork PRs) cannot access API keys
+* 📏 Large PRs are truncated (future improvement: chunking)
+* 🤖 AI summaries may not always be perfect
+
+---
+
+## 🚀 Future Improvements
+
+* Risk level detection (Low / Medium / High)
+* AI code review suggestions
+* Chunking for large diffs
+* Update existing comment instead of creating new ones
+* Convert into reusable GitHub Action (Marketplace)
+
+---
+
+## 🧠 Tech Stack
+
+* Git & GitHub
+* GitHub Actions (CI/CD)
+* Python
+* Google Gemini API
+* YAML
+
+---
+
+## 📌 Key Concept
+
+> This project demonstrates how AI can be integrated into DevOps pipelines to automate code review assistance.
 
 ---
 
