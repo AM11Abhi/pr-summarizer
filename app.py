@@ -1,39 +1,57 @@
-def calculate_total(items):
+def validate_password(password):
     """
-    Calculate total price of items.
+    Validate password strength.
     """
-    return sum(item["price"] for item in items)
+    if len(password) < 8:
+        return False
+    if not any(char.isdigit() for char in password):
+        return False
+    if not any(char.isupper() for char in password):
+        return False
+    return True
 
 
-def apply_discount(total, discount_percent):
+def hash_password(password):
     """
-    Apply percentage discount to total amount.
+    Simple hashing (for demo purposes only).
     """
-    if discount_percent < 0 or discount_percent > 100:
-        raise ValueError("Invalid discount percentage")
-
-    discount = (discount_percent / 100) * total
-    return total - discount
+    return hash(password)
 
 
-def print_invoice(items, discount_percent=0):
+def register_user(username, password):
     """
-    Print invoice with total and discount applied.
+    Register a new user with validation.
     """
-    total = calculate_total(items)
-    final_amount = apply_discount(total, discount_percent)
+    if not validate_password(password):
+        raise ValueError("Password is too weak")
 
-    print("------ Invoice ------")
-    print(f"Total: {total}")
-    print(f"Discount: {discount_percent}%")
-    print(f"Final Amount: {final_amount}")
-    print("---------------------")
+    hashed = hash_password(password)
+
+    return {
+        "username": username,
+        "password": hashed
+    }
+
+
+def login_user(stored_user, username, password):
+    """
+    Authenticate user login.
+    """
+    if stored_user["username"] != username:
+        return False
+
+    if stored_user["password"] != hash_password(password):
+        return False
+
+    return True
 
 
 if __name__ == "__main__":
-    items = [
-        {"name": "Book", "price": 200},
-        {"name": "Pen", "price": 50},
-    ]
+    user = register_user("admin", "StrongPass123")
 
-    print_invoice(items, discount_percent=10)
+    success = login_user(user, "admin", "StrongPass123")
+
+    if success:
+        print("Login successful")
+    else:
+        print("Login failed")
