@@ -24,7 +24,12 @@ runs:
 
     - name: Extract diff
       run: |
-        git diff HEAD~1 HEAD > diff.txt
+        if git rev-parse HEAD~1 >/dev/null 2>&1; then
+          git diff HEAD~1 HEAD > diff.txt
+        else
+          echo "Only one commit, using full diff"
+          git diff HEAD > diff.txt
+        fi
       shell: bash
 
     - name: Run summarizer
