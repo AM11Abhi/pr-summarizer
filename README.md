@@ -58,16 +58,16 @@ pr-summarizer/
 
 ## 🔧 Setup & Usage
 
-### 1️⃣ Clone the Repository
+### For This Repository
+
+#### 1️⃣ Clone the Repository
 
 ```bash
 git clone https://github.com/AM11Abhi/pr-summarizer.git
 cd pr-summarizer
 ```
 
----
-
-### 2️⃣ Add API Key (Important)
+#### 2️⃣ Add API Key (Important)
 
 Go to:
 
@@ -81,15 +81,57 @@ Add:
 GEMINI_API_KEY = your_api_key
 ```
 
----
-
-### 3️⃣ Create a Pull Request
+#### 3️⃣ Create a Pull Request
 
 * Create a new branch
 * Make code changes
 * Open a PR to `main`
 
 👉 The workflow will automatically run and post a summary.
+
+### Using This Action in Your Own Repository
+
+You can use this action in any GitHub repository by adding a workflow file:
+
+#### 1️⃣ Create Workflow File
+
+Create `.github/workflows/pr-summary.yml` in your repository:
+
+```yaml
+name: PR Summary
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  summarize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summarize PR
+        uses: AM11Abhi/pr-summarizer@v1.0.0
+        with:
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+```
+
+#### 2️⃣ Add API Key Secret
+
+In your repository settings:
+
+```
+Settings → Secrets → Actions → New repository secret
+```
+
+Name: `GEMINI_API_KEY`
+Value: Your Google Gemini API key
+
+#### 3️⃣ Test It
+
+Create a PR in your repository - the action will automatically summarize it!
 
 ---
 
