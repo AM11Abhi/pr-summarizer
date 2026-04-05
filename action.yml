@@ -15,9 +15,9 @@ inputs:
     required: false
     default: "100"
   model:
-    description: "Gemini model to use (e.g., 'gemini-1.5-flash')"
+    description: "Gemini model to use (e.g., 'gemini-2.5-flash')"
     required: false
-    default: "gemini-1.5-flash"
+    default: "gemini-2.5-flash"
   update_comment:
     description: "Whether to update an existing summary comment instead of creating a new one"
     required: false

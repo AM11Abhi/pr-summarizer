@@ -10,7 +10,7 @@ def main():
 
     diff_file = sys.argv[1]
     api_key = os.getenv('GEMINI_API_KEY')
-    model = os.getenv('MODEL', 'gemini-1.5-flash')
+    model = os.getenv('MODEL', 'gemini-2.5-flash')
 
     if not api_key:
         print("Error: GEMINI_API_KEY not set.")
