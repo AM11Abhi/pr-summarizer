@@ -51,6 +51,7 @@ pr-summarizer/
 │   └── diff_parser.py         # Diff cleaning utility
 │
 ├── requirements.txt           # Dependencies
+├── action.yml                 # Reusable GitHub Action definition
 └── README.md
 ```
 
@@ -58,38 +59,58 @@ pr-summarizer/
 
 ## 🔧 Setup & Usage
 
-### 1️⃣ Clone the Repository
+### For Your Own Repo (Reusable Action)
 
-```bash
-git clone https://github.com/AM11Abhi/pr-summarizer.git
-cd pr-summarizer
-```
+1. **Add the Action to Your Workflow**:
+   Create `.github/workflows/pr-summarizer.yml` in your repo:
 
----
+   ```yaml
+   name: PR Summarizer
+   on:
+     pull_request:
+       types: [opened, synchronize, reopened]
+   jobs:
+     summarize:
+       runs-on: ubuntu-latest
+       permissions:
+         issues: write
+         pull-requests: write
+       steps:
+         - uses: your-username/pr-summarizer@v1
+           with:
+             gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+             base_ref: 'main'  # Optional: default 'main'
+   ```
 
-### 2️⃣ Add API Key (Important)
+2. **Set Up Secrets**:
+   - Go to your repo → Settings → Secrets → Actions
+   - Add `GEMINI_API_KEY` with your Google Gemini API key
 
-Go to:
+3. **Create a PR**: The action will automatically run and post a summary.
 
-```
-Repo → Settings → Secrets → Actions
-```
+### Local Development
 
-Add:
+1. **Clone the Repository**
 
-```
-GEMINI_API_KEY = your_api_key
-```
+   ```bash
+   git clone https://github.com/your-username/pr-summarizer.git
+   cd pr-summarizer
+   ```
 
----
+2. **Install Dependencies**
 
-### 3️⃣ Create a Pull Request
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-* Create a new branch
-* Make code changes
-* Open a PR to `main`
+3. **Test Locally**
 
-👉 The workflow will automatically run and post a summary.
+   ```bash
+   # Extract a diff (replace with actual commands)
+   git diff HEAD~1 > test_diff.txt
+   # Run the summarizer
+   GEMINI_API_KEY=your_key python llm-module/main.py test_diff.txt
+   ```
 
 ---
 
@@ -117,6 +138,8 @@ Enhances functionality by introducing structured business logic and improving ma
 * ✅ Clean diff processing
 * ✅ Fully automated commenting
 * ✅ Works on every PR update
+* ✅ Configurable inputs (base branch, model, etc.)
+* ✅ Error handling for edge cases
 
 ---
 
