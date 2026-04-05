@@ -24,8 +24,7 @@ runs:
 
     - name: Extract diff
       run: |
-        git fetch origin ${{ github.base_ref }}
-        git diff origin/${{ github.base_ref }}...HEAD > diff.txt
+        git diff HEAD~1 HEAD > diff.txt
       shell: bash
 
     - name: Run summarizer
