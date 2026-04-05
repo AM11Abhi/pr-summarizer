@@ -79,7 +79,7 @@ runs:
         GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
         MODEL: ${{ inputs.model }}
       run: |
-        python llm-module/main.py diff.txt > summary.txt
+        python ${{ github.action_path }}/llm-module/main.py diff.txt > summary.txt
       shell: bash
 
     - name: Post or update comment

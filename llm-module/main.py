@@ -1,6 +1,9 @@
 import sys
 import os
 from google import genai
+
+# Add the script's directory to the path so diff_parser can be imported
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from diff_parser import clean_diff
 
 def main():
