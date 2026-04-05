@@ -1,16 +1,39 @@
 name: "AI PR Summarizer"
-description: "Automatically summarize pull requests using Gemini AI"
+description: "Automatically summarize pull requests using Google Gemini AI. Generates concise summaries of code changes and posts them as PR comments."
+author: "Your Name"  # Replace with your details
 
 inputs:
   gemini_api_key:
-    description: "Gemini API key"
+    description: "Your Google Gemini API key (store as a secret)"
     required: true
+  base_ref:
+    description: "The base branch to compare changes against (e.g., 'main')"
+    required: false
+    default: "main"
+  max_diff_size_kb:
+    description: "Maximum diff size in KB to process (to avoid API limits)"
+    required: false
+    default: "100"
+  model:
+    description: "Gemini model to use (e.g., 'gemini-1.5-flash')"
+    required: false
+    default: "gemini-1.5-flash"
+  update_comment:
+    description: "Whether to update an existing summary comment instead of creating a new one"
+    required: false
+    default: "false"
+
+outputs:
+  summary:
+    description: "The generated PR summary text"
 
 runs:
   using: "composite"
   steps:
     - name: Checkout repo
       uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Ensures full git history for reliable diffs
 
     - name: Setup Python
       uses: actions/setup-python@v5
@@ -24,31 +47,70 @@ runs:
 
     - name: Extract diff
       run: |
-        if git rev-parse HEAD~1 >/dev/null 2>&1; then
-          git diff HEAD~1 HEAD > diff.txt
-        else
-          echo "Only one commit, using full diff"
-          git diff HEAD > diff.txt
+        BASE_REF="${{ inputs.base_ref }}"
+        MAX_SIZE_KB="${{ inputs.max_diff_size_kb }}"
+        # Fetch base branch for accurate diff
+        git fetch origin $BASE_REF:$BASE_REF || echo "Failed to fetch $BASE_REF, using available history"
+        # Generate diff against base
+        git diff $BASE_REF...HEAD > diff.txt
+        # Check size and truncate if needed
+        FILE_SIZE_KB=$(($(stat -c%s diff.txt) / 1024))
+        if [ $FILE_SIZE_KB -gt $MAX_SIZE_KB ]; then
+          head -c $(($MAX_SIZE_KB * 1024)) diff.txt > diff_truncated.txt
+          mv diff_truncated.txt diff.txt
+          echo -e "\n\n[Diff truncated to $MAX_SIZE_KB KB]" >> diff.txt
         fi
       shell: bash
 
     - name: Run summarizer
       env:
         GEMINI_API_KEY: ${{ inputs.gemini_api_key }}
+        MODEL: ${{ inputs.model }}
       run: |
         python llm-module/main.py diff.txt > summary.txt
       shell: bash
 
-    - name: Post comment
+    - name: Post or update comment
       uses: actions/github-script@v7
+      env:
+        UPDATE_COMMENT: ${{ inputs.update_comment }}
       with:
         script: |
           const fs = require('fs');
           const summary = fs.readFileSync('summary.txt', 'utf8');
+          const prNumber = context.payload.pull_request?.number || context.issue.number;
+          const updateComment = process.env.UPDATE_COMMENT === 'true';
 
-          await github.rest.issues.createComment({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-            body: summary
-          });
+          if (updateComment) {
+            // Find and update existing comment
+            const comments = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber
+            });
+            const existingComment = comments.data.find(c => c.body.includes('🤖 AI Pull Request Summary'));
+            if (existingComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: existingComment.id,
+                body: summary
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: prNumber,
+                body: summary
+              });
+            }
+          } else {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: prNumber,
+              body: summary
+            });
+          }
+          // Output the summary
+          core.setOutput('summary', summary);

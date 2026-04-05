@@ -1,52 +1,18 @@
-name: PR Python Test
-
+name: PR Summarizer
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-
 jobs:
-  test:
+  summarize:
     runs-on: ubuntu-latest
-
     permissions:
-      contents: read
+      issues: write
       pull-requests: write
-    
-
     steps:
-      # 1️⃣ Checkout full repo
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: ./  # Use local action for testing; change to your-repo@branch for others
         with:
-          fetch-depth: 0
-
-      # 2️⃣ Extract PR diff
-      - name: Extract PR diff
-        run: |
-          git fetch origin ${{ github.base_ref }}
-          git diff origin/${{ github.base_ref }}...HEAD > diff.txt
-          echo "Diff line count:"
-          wc -l diff.txt
-
-      # 3️⃣ Setup Python
-      - name: Setup Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      # 4️⃣ Install dependencies (if any)
-      - name: Install dependencies
-        run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-
-      # 5️⃣ Run LLM module
-      - name: Run LLM module
-        env:
-          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-        run: |
-          python llm-module/main.py diff.txt > summary.txt
+          gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          base_ref: 'main'  # Optional overrides
 
       # 6️⃣ Show summary output
       - name: Show summary
