@@ -9,6 +9,10 @@ jobs:
       issues: write
       pull-requests: write
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: ./  # Use local action for testing; change to your-repo@branch for others
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
