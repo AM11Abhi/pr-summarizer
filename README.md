@@ -113,25 +113,77 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Summarize PR
-        uses: AM11Abhi/pr-summarizer@v1.0.0
+        uses: AM11Abhi/pr-summarizer@v1
         with:
           gemini_api_key: ${{ secrets.GEMINI_API_KEY }}
+          update_comment: 'true'  # Optional: update existing comment instead of creating new ones
 ```
 
-#### 2️⃣ Add API Key Secret
+#### 2️⃣ Get Your Gemini API Key
+
+1. Go to [Google AI Studio](https://aistudio.google.com/apikey)
+2. Click "Get API Key"
+3. Create a new API key in your Google Cloud project
+4. Copy the key
+
+#### 3️⃣ Add API Key Secret
 
 In your repository settings:
 
 ```
-Settings → Secrets → Actions → New repository secret
+Settings → Secrets and variables → Actions → New repository secret
 ```
 
-Name: `GEMINI_API_KEY`
-Value: Your Google Gemini API key
+- Name: `GEMINI_API_KEY`
+- Value: Paste your Google Gemini API key
 
-#### 3️⃣ Test It
+#### 4️⃣ Test It
 
 Create a PR in your repository - the action will automatically summarize it!
+
+---
+
+## ⚙️ Action Inputs & Outputs
+
+### Inputs
+
+| Input | Description | Required | Default |
+|-------|-------------|----------|----------|
+| `gemini_api_key` | Your Google Gemini API key (store as a secret) | ✅ Yes | N/A |
+| `base_ref` | The base branch to compare changes against | ❌ No | `main` |
+| `max_diff_size_kb` | Maximum diff size in KB to process (to avoid API limits) | ❌ No | `100` |
+| `model` | Gemini model to use | ❌ No | `gemini-2.5-flash` |
+| `update_comment` | Update existing summary comment instead of creating new ones | ❌ No | `false` |
+
+### Outputs
+
+| Output | Description |
+|--------|-------------|
+| `summary` | The generated PR summary text |
+
+---
+
+## 🐛 Troubleshooting
+
+### Issue: "No API key provided"
+**Solution:** Make sure `GEMINI_API_KEY` secret is set in your repository settings.
+
+### Issue: Workflow fails with merge-base error
+**Solution:** This typically occurs when the PR branch isn't based on the target branch. The action now handles this gracefully with multiple fallback strategies. If it persists:
+- Rebase your PR branch on the target branch
+- Or ensure your workflow uses `@v1` tag or `@main` (older versions don't have the fix)
+
+### Issue: No summary comment appears
+**Solution:** 
+- Check that your workflow has `pull-requests: write` permission
+- Verify the `GEMINI_API_KEY` is valid
+- Check the workflow logs for error messages
+
+### Issue: Action times out or API errors
+**Solution:** 
+- Reduce `max_diff_size_kb` (default 100 KB)
+- Check your Gemini API rate limits
+- Verify your API key is not rate-limited
 
 ---
 
@@ -175,8 +227,8 @@ Enhances functionality by introducing structured business logic and improving ma
 * Risk level detection (Low / Medium / High)
 * AI code review suggestions
 * Chunking for large diffs
-* Update existing comment instead of creating new ones
-* Convert into reusable GitHub Action (Marketplace)
+* Add custom summary templates
+* Marketplace submission and discovery
 
 ---
 
