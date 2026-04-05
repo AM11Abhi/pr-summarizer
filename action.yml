@@ -40,15 +40,30 @@ runs:
         pip install google-genai
       shell: bash
 
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
     - name: Extract diff
       run: |
         BASE_REF="${{ inputs.base_ref }}"
         MAX_SIZE_KB="${{ inputs.max_diff_size_kb }}"
-        # Fetch base branch for accurate diff
-        git fetch origin $BASE_REF:$BASE_REF || echo "Failed to fetch $BASE_REF, using available history"
-        # Generate diff against base
-        git diff $BASE_REF...HEAD > diff.txt
-        # Check size and truncate if needed
+        # Fetch the target base ref for accurate diff computation
+        git fetch origin "$BASE_REF":"$BASE_REF" 2>/dev/null || echo "Failed to fetch $BASE_REF, using available history"
+
+        if git rev-parse --verify "$BASE_REF" >/dev/null 2>&1; then
+          if git merge-base --is-ancestor "$BASE_REF" HEAD >/dev/null 2>&1; then
+            git diff "$BASE_REF"...HEAD > diff.txt
+          else
+            echo "No merge base found between $BASE_REF and HEAD; using direct diff range"
+            git diff "$BASE_REF" HEAD > diff.txt
+          fi
+        else
+          echo "Base ref '$BASE_REF' not available; diffing against the previous commit"
+          git diff HEAD~1 HEAD > diff.txt
+        fi
+
         FILE_SIZE_KB=$(($(stat -c%s diff.txt) / 1024))
         if [ $FILE_SIZE_KB -gt $MAX_SIZE_KB ]; then
           head -c $(($MAX_SIZE_KB * 1024)) diff.txt > diff_truncated.txt
