@@ -53,10 +53,12 @@ runs:
         git fetch origin "$BASE_REF":"$BASE_REF" 2>/dev/null || echo "Failed to fetch $BASE_REF, using available history"
 
         if git rev-parse --verify "$BASE_REF" >/dev/null 2>&1; then
-          if git merge-base --is-ancestor "$BASE_REF" HEAD >/dev/null 2>&1; then
-            git diff "$BASE_REF"...HEAD > diff.txt
+          MERGE_BASE=$(git merge-base "$BASE_REF" HEAD 2>/dev/null || true)
+          if [ -n "$MERGE_BASE" ]; then
+            echo "Using merge base $MERGE_BASE for diff generation"
+            git diff "$MERGE_BASE" HEAD > diff.txt
           else
-            echo "No merge base found between $BASE_REF and HEAD; using direct diff range"
+            echo "No common ancestor found between $BASE_REF and HEAD; using direct diff against $BASE_REF"
             git diff "$BASE_REF" HEAD > diff.txt
           fi
         else
